@@ -102,11 +102,8 @@
     // The page's Squarespace data (the posts for the blog page; a post's own details for a post), alongside the design.
     sqJson = blogList();
   }
-  // One Squarespace page (/post) shows every blog post: /post?p=<post> loads blog-<post>.html.
-  if (PAGE === "@post") {
-    var post = (new URLSearchParams(location.search).get("p") || "").toLowerCase().replace(/[^a-z0-9-]/g, "");
-    PAGE = post ? "blog-" + post + ".html" : "blog.html";
-  }
+  // The old /post page (from before the blog moved to Squarespace's own Blog): its visitors go to the Blog.
+  if (PAGE === "@post") { location.replace("/blog"); return; }
   // Links between pages go to the matching Squarespace page: "about.html" → "/about". Pages added later in the
   // editor follow the same rule, so a new page only needs a Squarespace page with that URL. Exceptions:
   var SLUGS = { "index.html": "/", "404.html": "/error-404" };
@@ -114,7 +111,7 @@
   var V = "v=" + Math.floor(Date.now() / 60000);
   // The site's own styles and scripts: versioned by content (tools/version_assets.py fills this in), so
   // browsers keep them between visits and only download a file again after it changes.
-  var HASH = {"assets/css/styles.css":"7c3e2c2e","assets/js/main.js":"263f2cec","assets/js/motion.js":"145fd986","assets/vendor/gsap.min.js":"2d26f4c0","assets/vendor/ScrollTrigger.min.js":"489bcf6d","assets/vendor/lenis.min.js":"3ae98b55","assets/css/squarespace.css":"7fdf3861"};
+  var HASH = {"assets/css/styles.css":"725735bc","assets/js/main.js":"263f2cec","assets/js/motion.js":"145fd986","assets/vendor/gsap.min.js":"2d26f4c0","assets/vendor/ScrollTrigger.min.js":"489bcf6d","assets/vendor/lenis.min.js":"3ae98b55","assets/css/squarespace.css":"191f4619"};
   function ver(p) { return HASH[p] ? "v=" + HASH[p] : V; }
   var d = document.documentElement;
   // The intro screen is for the first page of a visit only. (The pasted codes start it on every page load, so after
@@ -159,8 +156,6 @@
 
   function abs(u) {
     if (!u || /^(https?:|data:|blob:|mailto:|tel:|#|\/\/)/.test(u)) return u;
-    var bp = u.match(/^blog-([a-z0-9-]+)\.html(#.*)?$/i);
-    if (bp) return "/post?p=" + bp[1].toLowerCase() + (bp[2] || "");
     var m = u.match(/^([a-z0-9-]+)\.html(#.*)?$/i);
     if (m) return (SLUGS[m[1] + ".html"] || "/" + m[1].toLowerCase()) + (m[2] || "");
     return HOST + u.replace(/^\.\//, "");
